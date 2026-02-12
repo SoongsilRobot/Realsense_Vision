@@ -4,7 +4,7 @@
 # 화면 주사율, 프레임 크기 등 설정
 # 흐름 담당은 main.py가 아닌 pipeline_node.py
 # main.py는 기본적인 설정만 담당 후 pipeline_node.py에 인자 전달 및 노드 실행
-
+# 실행 시: python main.py --onnx [모델경로] --hz 0.2
 
 import argparse
 import rclpy
@@ -16,7 +16,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--onnx", required=True, help="Path to yolo26n.onnx")
 
-    p.add_argument("--hz", type=float, default=15.0)
+    p.add_argument("--hz", type=float, default=15.0) # 0.2로 바꾸면 5초에 한번
     p.add_argument("--annotated", action="store_true")
 
     # camera

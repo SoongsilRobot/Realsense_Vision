@@ -110,26 +110,21 @@ class YoloOnnxInfer:
         if pred.shape[1] <= 4:
             return None
 
-        # 가정: [x,y,w,h] + class scores...
-        boxes_xywh = pred[:, 0:4]
+        # 가정: [x1, y1, x2, y2] + class scores...
+        boxes_xyxy = pred[:, 0:4]
         cls_scores = pred[:, 4:]
         conf = cls_scores.max(axis=1)
         cls_id = cls_scores.argmax(axis=1)
 
         keep = conf > self.cfg.conf_thres
-        boxes_xywh = boxes_xywh[keep]
+        boxes_xyxy = boxes_xyxy[keep]
         conf = conf[keep]
         cls_id = cls_id[keep]
-        if boxes_xywh.shape[0] == 0:
+        if boxes_xyxy.shape[0] == 0:
             return None
 
-        # xywh -> xyxy (letterbox 좌표계)
-        x0, y0, w0, h0 = boxes_xywh[:, 0], boxes_xywh[:, 1], boxes_xywh[:, 2], boxes_xywh[:, 3]
-        x1 = x0 - w0 / 2
-        y1 = y0 - h0 / 2
-        x2 = x0 + w0 / 2
-        y2 = y0 + h0 / 2
-        boxes_xyxy = np.stack([x1, y1, x2, y2], axis=1)
+        # xyxy 그대로 사용 (추가 변환 없음)
+
 
         idxs = nms_xyxy(boxes_xyxy, conf, self.cfg.iou_thres)
         if not idxs:
