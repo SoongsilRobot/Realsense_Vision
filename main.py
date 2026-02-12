@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+# yolo 모델 어떤 거 사용할지 설정
+# 화면 주사율, 프레임 크기 등 설정
+# 흐름 담당은 main.py가 아닌 pipeline_node.py
+# main.py는 기본적인 설정만 담당 후 pipeline_node.py에 인자 전달 및 노드 실행
+
+
 import argparse
 import rclpy
 
@@ -7,7 +14,7 @@ from ros.pipeline_node import PipelineNode, PipelineConfig
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--onnx", required=True, help="Path to yolo11n.onnx")
+    p.add_argument("--onnx", required=True, help="Path to yolo26n.onnx")
 
     p.add_argument("--hz", type=float, default=15.0)
     p.add_argument("--annotated", action="store_true")

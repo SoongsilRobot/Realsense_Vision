@@ -1,4 +1,11 @@
 # ros/pipeline_node.py
+
+# 각 요소들 연결
+# camera_reader.py : 카메라 읽기
+# yolo_infer.py : yolo 모델 추론
+# depth_estimator.py : 깊이 추정
+# publishers.py : 토픽 발행
+
 from __future__ import annotations
 from dataclasses import dataclass
 
@@ -37,13 +44,7 @@ class PipelineConfig:
 
 
 class PipelineNode(Node):
-    """
-    역할: 오케스트레이션(연결)만 담당
-      camera_reader.read()
-        -> yolo_infer.infer_top1()
-          -> depth_estimator.estimate_m()
-            -> publishers.publish(...)
-    """
+
     def __init__(self, cfg: PipelineConfig):
         super().__init__(NODE_NAME)
 
@@ -79,6 +80,7 @@ class PipelineNode(Node):
 
         bgr, depth_frame = got
 
+
         det = None
         try:
             det = self.yolo.infer_top1(bgr)
@@ -88,6 +90,7 @@ class PipelineNode(Node):
         out_img = bgr
         dist_m = float("nan")
 
+        cx, cy = 0.0, 0.0
         if det is not None:
             cx, cy = det.cxcy
             dist_m = self.depth.estimate_m(depth_frame, cx, cy)
@@ -96,7 +99,7 @@ class PipelineNode(Node):
                 out_img = self._draw(bgr, det, dist_m)
 
         # publish (토픽 2개 고정)
-        self.pubs.publish_distance_m(dist_m)
+        self.pubs.publish_distance_m(dist_m, cx, cy)
         self.pubs.publish_image_bgr(out_img)
 
     def _draw(self, bgr: np.ndarray, det: Detection, dist_m: float) -> np.ndarray:
